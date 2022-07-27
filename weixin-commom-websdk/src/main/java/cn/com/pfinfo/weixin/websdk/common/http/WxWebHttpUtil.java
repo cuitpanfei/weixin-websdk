@@ -26,11 +26,13 @@ import java.util.stream.Collectors;
  * @author cuitpanfei
  */
 public class WxWebHttpUtil extends HttpUtil {
-    public static final Map<String, List<ErrCodeParser>> ERR_CODE_PARSER;
+    public static final Map<String, List<ErrCodeParser<?>>> ERR_CODE_PARSER;
 
     static {
+        Comparator<ErrCodeParser<?>> comparator = Comparator.comparing(ErrCodeParser::appType);
+        Comparator<ErrCodeParser<?>> comparator2 = Comparator.comparing(ErrCodeParser::name);
         ERR_CODE_PARSER = Collections.unmodifiableMap(loadAllErrCodeParser());
-        ERR_CODE_PARSER.forEach((appType,list)->list.sort(Comparator.comparing(ErrCodeParser::appType).thenComparing(ErrCodeParser::name)));
+        ERR_CODE_PARSER.forEach((appType, list) -> list.sort(comparator.thenComparing(comparator2)));
         addHttpInterceptor();
     }
 
@@ -51,10 +53,10 @@ public class WxWebHttpUtil extends HttpUtil {
 
     }
 
-    static Map<String, List<ErrCodeParser>> loadAllErrCodeParser() {
+    static Map<String, List<ErrCodeParser<?>>> loadAllErrCodeParser() {
         Set<Class<?>> classes = ClassUtil.scanPackageBySuper(CharSequenceUtil.EMPTY, ErrCodeParser.class);
         return classes.stream().filter(clazz -> !clazz.isInterface())
-                .map(clazz -> (ErrCodeParser) Singleton.get(clazz))
+                .map(clazz -> (ErrCodeParser<?>) Singleton.get(clazz))
                 .collect(Collectors.groupingBy(ErrCodeParser::appType));
     }
 

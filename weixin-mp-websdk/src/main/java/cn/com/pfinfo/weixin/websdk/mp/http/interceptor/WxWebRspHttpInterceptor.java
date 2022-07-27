@@ -7,6 +7,7 @@ import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpUtil;
 import cn.com.pfinfo.weixin.websdk.common.http.errcode.ErrCodeParser;
 import cn.com.pfinfo.weixin.websdk.common.model.CookieModel;
 import cn.com.pfinfo.weixin.websdk.mp.stage.MpApp;
+import cn.hutool.core.util.TypeUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.Header;
 import cn.hutool.http.HttpResponse;
@@ -87,18 +88,21 @@ public class WxWebRspHttpInterceptor implements WxWebHttpInterceptor<HttpRespons
             if (ret == -101) {
                 return;
             }
-            String msg = handerRet(ret);
+            String msg = handlerRet(ret);
             String exMsg = String.format("%s,%n resp: ret:%d, msg:%s, body:%s", REQ_INFO.get(), ret, msg, body);
             throw new RRException(exMsg, ret);
         }
     }
 
-    String handerRet(int ret) {
-        List<ErrCodeParser> parsers = WxWebHttpUtil.ERR_CODE_PARSER.getOrDefault(MpApp.type(), Collections.emptyList());
+    String handlerRet(int ret) {
+        List<ErrCodeParser<?>> parsers = WxWebHttpUtil.ERR_CODE_PARSER.getOrDefault(MpApp.type(),
+                Collections.emptyList());
         for (ErrCodeParser parser : parsers) {
-            String s = parser.msg4ErrCode(ret);
-            if (s != null) {
-                return s;
+            if (TypeUtil.getTypeArgument(parser.getClass()) == Integer.TYPE) {
+                String s = parser.msg4ErrCode(ret);
+                if (s != null) {
+                    return s;
+                }
             }
         }
         return null;
