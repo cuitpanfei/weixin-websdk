@@ -4,6 +4,8 @@ import cn.com.pfinfo.weixin.websdk.common.enums.QrCodeScanState;
 import cn.com.pfinfo.weixin.websdk.common.stage.App;
 
 /**
+ * 微信公众号平台登陆服务，提供公众号平台登录接口
+ * <p>
  * created by cuitpanfei on 2022/07/25
  *
  * @author cuitpanfei

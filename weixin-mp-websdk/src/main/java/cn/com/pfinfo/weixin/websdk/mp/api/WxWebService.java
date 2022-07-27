@@ -35,8 +35,12 @@ public interface WxWebService {
     }
 
     class DefaultWxMpWebServiceImpl implements WxWebService {
+        static final WxWebService INSTANCE;
 
-        public static final WxWebService INSTANCE = new DefaultWxMpWebServiceImpl();
+        static {
+            INSTANCE = Singleton.get(DefaultWxMpWebServiceImpl.class);
+            Singleton.put(WxWebService.class.getName(), INSTANCE);
+        }
 
         @Override
         public String desc() {

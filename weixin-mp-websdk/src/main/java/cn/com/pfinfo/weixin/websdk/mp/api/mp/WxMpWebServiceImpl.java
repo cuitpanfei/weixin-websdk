@@ -3,6 +3,7 @@ package cn.com.pfinfo.weixin.websdk.mp.api.mp;
 import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpUtil;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.login.WxMpWebLoginService;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.login.WxMpWebLoginServiceImpl;
+import cn.com.pfinfo.weixin.websdk.mp.api.mp.material.WxMpWebMaterialService;
 import cn.hutool.core.lang.Singleton;
 import cn.hutool.log.Log;
 
@@ -20,7 +21,12 @@ public class WxMpWebServiceImpl implements WxMpWebService {
     }
 
     @Override
-    public boolean checkCookie() {
+    public WxMpWebMaterialService materialService() {
+        return null;
+    }
+
+    @Override
+    public boolean cookieIsExpired() {
         try {
             String body = WxWebHttpUtil.get(MP_WEIXIN_QQ_COM);
             return !body.contains("近期编辑");
