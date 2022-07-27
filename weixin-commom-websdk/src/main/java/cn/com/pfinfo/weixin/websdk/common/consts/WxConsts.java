@@ -7,9 +7,16 @@ package cn.com.pfinfo.weixin.websdk.common.consts;
  */
 public class WxConsts {
 
+    /**
+     * 应用主站网址
+     */
+    public static class AppSite {
+        public static final String MP_WEIXIN_QQ_COM = "https://mp.weixin.qq.com";
+    }
 
     /**
      * app 类型
+     *
      * @author cuitpanfei
      */
     public static class AppType {
@@ -29,7 +36,7 @@ public class WxConsts {
     public static class RespFiled {
         public static final String RET = "ret";
         public static final String BASE_RESP = "base_resp";
-        public static final String BASE_RESP_DOT_RET = BASE_RESP+"."+RET;
+        public static final String BASE_RESP_DOT_RET = BASE_RESP + "." + RET;
     }
 
 }

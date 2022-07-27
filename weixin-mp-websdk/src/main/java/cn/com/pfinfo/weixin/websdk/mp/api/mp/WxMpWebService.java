@@ -11,7 +11,7 @@ import cn.com.pfinfo.weixin.websdk.mp.api.mp.login.WxMpWebLoginService;
  */
 public interface WxMpWebService extends WxWebAppService {
 
-    String MP_WEIXIN_QQ_COM = "https://mp.weixin.qq.com";
+    String MP_WEIXIN_QQ_COM = WxConsts.AppSite.MP_WEIXIN_QQ_COM;
     String BASE_URL = MP_WEIXIN_QQ_COM + "/cgi-bin";
 
     WxMpWebLoginService loginService();

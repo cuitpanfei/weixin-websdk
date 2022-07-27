@@ -1,7 +1,9 @@
 package cn.com.pfinfo.weixin.websdk.mp.http.interceptor;
 
+import cn.com.pfinfo.weixin.websdk.common.consts.WxConsts;
 import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpInterceptor;
 import cn.com.pfinfo.weixin.websdk.common.model.CookieModel;
+import cn.hutool.http.Header;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.log.Log;
 
@@ -25,7 +27,12 @@ public class WxWebReqHttpInterceptor implements WxWebHttpInterceptor<HttpRequest
      */
     @Override
     public void process(HttpRequest req, Optional<CookieModel> managerOptional) {
-        managerOptional.ifPresent(model -> req.setFollowRedirects(true).cookie(model.cookie()));
+        managerOptional.ifPresent(model -> {
+            if (req.header(Header.REFERER) == null) {
+                req.header(Header.REFERER, WxConsts.AppSite.MP_WEIXIN_QQ_COM);
+            }
+            req.setFollowRedirects(true).cookie(model.cookie());
+        });
         StringBuilder sb = new StringBuilder();
         Optional.ofNullable(req.form())
                 .ifPresent(map -> map.forEach((k, v) -> sb.append(k).append(": ").append(v).append("\n")));

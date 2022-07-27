@@ -45,14 +45,12 @@ public class WxMpWebLoginServiceImpl implements WxMpWebLoginService {
     private void prelogin() {
         WxWebHttpUtil.get(WxMpWebService.MP_WEIXIN_QQ_COM);
         WxWebHttpUtil.createPost(BIZ_LOGIN_BASE_URL)
-                .header(Header.REFERER, WxMpWebService.MP_WEIXIN_QQ_COM)
                 .body("action=prelogin&token=&lang=zh_CN&f=json&ajax=1", APPLICATION_FORM_URLENCODED_VALUE)
                 .execute();
     }
 
     private void startlogin() {
         WxWebHttpUtil.createPost(UrlBuilder.of(BIZ_LOGIN_BASE_URL).addQuery("action", "startlogin").build())
-                .header(Header.REFERER, WxMpWebService.MP_WEIXIN_QQ_COM)
                 .body("userlang=zh_CN&redirect_url=&login_type=3&sessionid=" + System.currentTimeMillis()
                         + "0&token=&lang=zh_CN&f=json&ajax=1", APPLICATION_FORM_URLENCODED_VALUE)
                 .execute();
@@ -79,8 +77,7 @@ public class WxMpWebLoginServiceImpl implements WxMpWebLoginService {
                 .addQuery("action", "getqrcode")
                 .addQuery("random", System.currentTimeMillis())
                 .build();
-        HttpRequest request = WxWebHttpUtil.createGet(url)
-                .header(Header.REFERER, WxMpWebService.MP_WEIXIN_QQ_COM);
+        HttpRequest request = WxWebHttpUtil.createGet(url);
         HttpResponse response = request.cookie("wxuin=" + WxWebHttpUtil.getNewWxUin())
                 .executeAsync();
         String qrcodeInfo = CharSequenceUtil.EMPTY;
@@ -102,8 +99,7 @@ public class WxMpWebLoginServiceImpl implements WxMpWebLoginService {
                     .addQuery("f", "json")
                     .addQuery("ajax", 1)
                     .build();
-            HttpResponse response = WxWebHttpUtil.createGet(url)
-                    .header(Header.REFERER, WxMpWebService.MP_WEIXIN_QQ_COM).executeAsync();
+            HttpResponse response = WxWebHttpUtil.createGet(url).executeAsync();
             String jsonResult = response.body();
             JSONObject obj = JSONUtil.parseObj(jsonResult);
             Integer retCode = obj.getByPath("base_resp.ret", Integer.class);
@@ -123,7 +119,6 @@ public class WxMpWebLoginServiceImpl implements WxMpWebLoginService {
                 .addQuery("action", "login")
                 .build();
         HttpResponse response = WxWebHttpUtil.createPost(url)
-                .header(Header.REFERER, WxMpWebService.MP_WEIXIN_QQ_COM)
                 .body("userlang=zh_CN&redirect_url=&cookie_forbidden=0&cookie_cleaned=1&plugin_used=0&login_type=3&token=&lang=zh_CN&f=json&ajax=1", APPLICATION_FORM_URLENCODED_VALUE)
                 .executeAsync();
         if (response.isOk()) {

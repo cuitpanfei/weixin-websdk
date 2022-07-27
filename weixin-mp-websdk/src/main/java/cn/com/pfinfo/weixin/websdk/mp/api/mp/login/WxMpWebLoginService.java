@@ -34,5 +34,10 @@ public interface WxMpWebLoginService {
      */
     QrCodeScanState scanLoginQrCodeAck();
 
+    /**
+     * <p>进行最后的业务登陆，获取token以及交互的cookie。
+     * <p>将获取到的token存入{@linkplain cn.com.pfinfo.weixin.websdk.mp.stage.MpApp MpApp};
+     * <p>将cookie存储到{@linkplain cn.com.pfinfo.weixin.websdk.common.http.CookieManager CookieManager}以便后续交互
+     */
     void bizLogin();
 }

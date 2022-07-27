@@ -12,4 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class CookieManager extends ConcurrentHashMap<String, CookieModel> {
     public static final CookieManager INSTANCE = new CookieManager();
 
+    CookieManager() {
+    }
 }
