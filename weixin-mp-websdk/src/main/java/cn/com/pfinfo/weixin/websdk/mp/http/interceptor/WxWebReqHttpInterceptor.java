@@ -49,7 +49,7 @@ public class WxWebReqHttpInterceptor implements WxWebHttpInterceptor<HttpRequest
             if (!Optional.ofNullable(builder.getQuery().get(LANG)).isPresent()) {
                 builder.addQuery(LANG, LANG_ZH_CN);
             }
-            if (ContentType.isFormUrlEncode(req.header(Header.CONTENT_TYPE))) {
+            if (ContentType.isFormUrlEncode(req.header(Header.CONTENT_TYPE)) && req.bodyBytes() == null) {
                 req.form(TOKEN, token).form("f", JSON)
                         .form(AJAX, 1).form(LANG, LANG_ZH_CN);
             }

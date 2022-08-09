@@ -12,6 +12,7 @@ import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.http.ContentType;
 import cn.hutool.http.Header;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
@@ -21,6 +22,7 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import static cn.com.pfinfo.weixin.websdk.mp.api.mp.WxMpWebService.BASE_URL;
@@ -37,10 +39,10 @@ public class WxMpWebLoginServiceImpl implements WxMpWebLoginService {
         Singleton.put(WxMpWebLoginService.class.getName(), Singleton.get(WxMpWebLoginServiceImpl.class));
     }
 
-    public static final String SCAN_LOGIN_QRCODE_BASE_URL = UrlBuilder.of(BASE_URL).addPath("scanloginqrcode").build();
-    public static final String BIZ_LOGIN_BASE_URL = UrlBuilder.of(BASE_URL).addPath("bizlogin").build();
+    public static final String SCAN_LOGIN_QRCODE_BASE_URL = BASE_URL + "/scanloginqrcode";
+    public static final String BIZ_LOGIN_BASE_URL = BASE_URL + "/bizlogin";
 
-    public static final String APPLICATION_FORM_URLENCODED_VALUE = "application/x-www-form-urlencoded; charset=UTF-8";
+    public static final String APPLICATION_FORM_URLENCODED_VALUE = ContentType.FORM_URLENCODED.toString(StandardCharsets.UTF_8);
 
     private void prelogin() {
         WxWebHttpUtil.get(WxMpWebService.MP_WEIXIN_QQ_COM);

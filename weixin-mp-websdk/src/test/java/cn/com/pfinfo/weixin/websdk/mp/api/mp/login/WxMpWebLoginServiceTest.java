@@ -3,6 +3,7 @@ package cn.com.pfinfo.weixin.websdk.mp.api.mp.login;
 import cn.com.pfinfo.weixin.websdk.common.enums.QrCodeScanState;
 import cn.com.pfinfo.weixin.websdk.common.event.EventManager;
 import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpUtil;
+import cn.com.pfinfo.weixin.websdk.common.stage.App;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.login.event.QrCodeScanEventDetail;
 import cn.com.pfinfo.weixin.websdk.mp.stage.MpApp;
 import cn.hutool.core.lang.Singleton;
@@ -57,8 +58,10 @@ class WxMpWebLoginServiceTest {
     void bizLogin() {
         CountDownLatch latch = new CountDownLatch(1);
         getLoginQRCodeDecodeLink();
+        String appId = MpApp.appId();
         ThreadUtil.execute(() -> {
-            int i = 100;
+            MpApp.updateAppId(appId);
+            int i = 5;
             while (i-- >= 0 && MpApp.token() == null) {
                 ThreadUtil.sleep(2, TimeUnit.SECONDS);
             }

@@ -89,7 +89,7 @@ public class WxWebRspHttpInterceptor implements WxWebHttpInterceptor<HttpRespons
                 return;
             }
             String msg = handlerRet(ret);
-            String exMsg = String.format("%s,%n resp: ret:%d, msg:%s, body:%s", REQ_INFO.get(), ret, msg, body);
+            String exMsg = String.format("%s%n resp: ret:%d, msg:%s, body:%s", REQ_INFO.get(), ret, msg, body);
             throw new RRException(exMsg, ret);
         }
     }

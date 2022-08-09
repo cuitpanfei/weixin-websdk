@@ -6,7 +6,9 @@ import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.TypeUtil;
+import cn.hutool.http.GlobalHeaders;
 import cn.hutool.http.GlobalInterceptor;
+import cn.hutool.http.Header;
 import cn.hutool.http.HttpBase;
 import cn.hutool.http.HttpInterceptor;
 import cn.hutool.http.HttpRequest;
@@ -35,6 +37,7 @@ public class WxWebHttpUtil extends HttpUtil {
     public static final Map<String, List<ErrCodeParser<?>>> ERR_CODE_PARSER;
 
     static {
+        GlobalHeaders.INSTANCE.header(Header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Safari/537.36 Edg/104.0.1293.47", true);
         Comparator<ErrCodeParser<?>> comparator = Comparator.comparing(ErrCodeParser::appType);
         Comparator<ErrCodeParser<?>> comparator2 = Comparator.comparing(ErrCodeParser::name);
         ERR_CODE_PARSER = Collections.unmodifiableMap(loadAllErrCodeParser());
