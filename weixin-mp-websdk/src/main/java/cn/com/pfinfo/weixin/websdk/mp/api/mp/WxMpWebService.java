@@ -2,6 +2,7 @@ package cn.com.pfinfo.weixin.websdk.mp.api.mp;
 
 import cn.com.pfinfo.weixin.websdk.common.api.WxWebAppService;
 import cn.com.pfinfo.weixin.websdk.common.consts.WxConsts;
+import cn.com.pfinfo.weixin.websdk.mp.api.mp.draft.WxMpWebDraftService;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.login.WxMpWebLoginService;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.material.WxMpWebMaterialService;
 
@@ -28,6 +29,8 @@ public interface WxMpWebService extends WxWebAppService {
      * @return 微信公众号平台素材相关接口方法的实现类对象
      */
     WxMpWebMaterialService materialService();
+
+    WxMpWebDraftService draftService();
 
     /**
      * app 类型

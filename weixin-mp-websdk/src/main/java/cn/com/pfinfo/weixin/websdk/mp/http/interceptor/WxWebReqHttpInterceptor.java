@@ -8,6 +8,7 @@ import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.Header;
 import cn.hutool.http.HttpRequest;
+import cn.hutool.http.Method;
 import cn.hutool.log.Log;
 
 import java.util.Optional;
@@ -40,13 +41,14 @@ public class WxWebReqHttpInterceptor implements WxWebHttpInterceptor<HttpRequest
             if (req.header(Header.REFERER) == null) {
                 req.header(Header.REFERER, WxConsts.AppSite.MP_WEIXIN_QQ_COM);
             }
+            boolean isGet = req.getMethod().equals(Method.GET);
             String token = MpApp.token();
             UrlBuilder builder = UrlBuilder.of(req.getUrl());
 
-            if (!Optional.ofNullable(builder.getQuery().get(TOKEN)).isPresent()) {
+            if (isGet && !Optional.ofNullable(builder.getQuery().get(TOKEN)).isPresent()) {
                 builder.addQuery(TOKEN, token);
             }
-            if (!Optional.ofNullable(builder.getQuery().get(LANG)).isPresent()) {
+            if (isGet && !Optional.ofNullable(builder.getQuery().get(LANG)).isPresent()) {
                 builder.addQuery(LANG, LANG_ZH_CN);
             }
             if (ContentType.isFormUrlEncode(req.header(Header.CONTENT_TYPE)) && req.bodyBytes() == null) {

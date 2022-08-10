@@ -1,9 +1,12 @@
 package cn.com.pfinfo.weixin.websdk.mp.api.mp;
 
 import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpUtil;
+import cn.com.pfinfo.weixin.websdk.mp.api.mp.draft.WxMpWebDraftService;
+import cn.com.pfinfo.weixin.websdk.mp.api.mp.draft.WxMpWebDraftServiceImpl;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.login.WxMpWebLoginService;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.login.WxMpWebLoginServiceImpl;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.material.WxMpWebMaterialService;
+import cn.com.pfinfo.weixin.websdk.mp.api.mp.material.WxMpWebMaterialServiceImpl;
 import cn.hutool.core.lang.Singleton;
 import cn.hutool.log.Log;
 
@@ -22,7 +25,12 @@ public class WxMpWebServiceImpl implements WxMpWebService {
 
     @Override
     public WxMpWebMaterialService materialService() {
-        return null;
+        return Singleton.get(WxMpWebMaterialServiceImpl.class);
+    }
+
+    @Override
+    public WxMpWebDraftService draftService() {
+        return Singleton.get(WxMpWebDraftServiceImpl.class);
     }
 
     @Override

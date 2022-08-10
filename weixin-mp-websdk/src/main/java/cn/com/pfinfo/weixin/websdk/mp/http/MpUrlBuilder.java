@@ -1,5 +1,6 @@
 package cn.com.pfinfo.weixin.websdk.mp.http;
 
+import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpUtil;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.WxMpWebService;
 import cn.com.pfinfo.weixin.websdk.mp.stage.MpApp;
 import cn.hutool.core.builder.Builder;
@@ -55,6 +56,9 @@ public class MpUrlBuilder implements Builder<String> {
 
     public MpUrlBuilder action(String action) {
         return addQuery("action", action);
+    }
+    public MpUrlBuilder random() {
+        return addQuery("random", WxWebHttpUtil.random());
     }
 
     public MpUrlBuilder deleteQuery(String query) {

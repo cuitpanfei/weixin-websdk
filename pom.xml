@@ -20,6 +20,8 @@
         <maven.compiler.target>8</maven.compiler.target>
         <hutool.version>5.8.3</hutool.version>
         <zxing.version>3.3.3</zxing.version>
+        <gson.version>2.8.6</gson.version>
+        <jsoup.version>1.8.3</jsoup.version>
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M7</maven-failsafe-plugin.version>
     </properties>
@@ -56,6 +58,16 @@
                 <groupId>com.google.zxing</groupId>
                 <artifactId>core</artifactId>
                 <version>${zxing.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
             </dependency>
             <dependency>
                 <groupId>cn.hutool</groupId>
