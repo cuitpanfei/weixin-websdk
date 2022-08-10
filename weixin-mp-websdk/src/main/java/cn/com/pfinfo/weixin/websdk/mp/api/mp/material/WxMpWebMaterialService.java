@@ -31,7 +31,6 @@ public interface WxMpWebMaterialService {
      * 分页查询文件列表
      *
      * @param type  文件类型
-     * @param query 关键字，用于查询信息
      * @param begin 开始位置
      * @param count 单页大小
      * @return 文件列表信息
@@ -52,6 +51,7 @@ public interface WxMpWebMaterialService {
     default CgiData filepage(MpWebConst.MaterialType type, String query, Integer begin, Integer count) {
         HttpResponse response = MpUrlBuilder.parse(FILE_PAGE).token()
                 .addQuery("type", type.code).addQuery("begin", begin)
+                .addQuery("query", query)
                 .addQuery("count", count).get()
                 .executeAsync();
         String body = response.body();
@@ -133,7 +133,20 @@ public interface WxMpWebMaterialService {
     //================= 音频接口 ======================
 
     /**
-     * 上传音频文件，格式支持mp3、wma、wav、amr、m4a
+     * 格式支持mp3、wma、wav、amr、m4a，文件大小不超过200M，音频时长不超过2小时。 上传后音频将进行转码和审核。
+     * <pre>
+     * 音频处理流程如下：
+     *
+     * 1、上传：将音频上传至服务器。
+     *
+     * 2、转码：上传成功后服务器将音频转码成可播放的格式。
+     *
+     * 3、审核：转码完成后音频进入内容审核阶段。
+     *
+     * 4、可用：只有审核通过的音频素材才可以公开和发表。
+     *
+     * 5、公开：将音频公开或发表后可供用户播放。
+     * </pre>
      * <p>
      * 上传成功返回网络地址，
      * example: https://res.wx.qq.com/voice/getvoice?mediaid=${FileMedisId}
@@ -142,6 +155,27 @@ public interface WxMpWebMaterialService {
      * @return 音频资源网络地址
      */
     String uploadAudio(File file);
+
+    /**
+     * 根据名称，查询音频信息
+     *
+     * @param name  名称
+     * @param begin 索引开始位置
+     * @param count 单页大小
+     * @return 查询到的当前页的音频数据信息
+     */
+    default List<FileItemItem> searchAudio(String name, Integer begin, Integer count) {
+        CgiData cgiData = filepage(MpWebConst.MaterialType.AUDIO, name, begin, count);
+        return cgiData.getFileItem();
+    }
+
+    default void delAudio(String fileIds) {
+        String body = MpUrlBuilder.cgi("operate_voice")
+                .addQuery("oper", "delvoice")
+                .post().form("fileid", fileIds)
+                .executeAsync().body();
+        System.out.println(body);
+    }
 
     //================= 视频接口 ======================
 }

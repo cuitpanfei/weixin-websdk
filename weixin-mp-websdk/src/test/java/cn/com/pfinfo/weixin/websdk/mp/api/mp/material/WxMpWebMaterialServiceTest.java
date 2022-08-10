@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * created by cuitpanfei on 2022/07/28
@@ -70,8 +71,21 @@ class WxMpWebMaterialServiceTest {
 
     @Test
     void uploadAudio() {
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 20; i++) {
             service.uploadAudio(FileUtil.file("C:\\Users\\pannnfei\\Downloads\\tts.mp3"));
         }
+    }
+
+    @Test
+    void searchAudio() {
+        List<FileItemItem> tts = service.searchAudio("tts", 0, 20);
+        System.out.println(JSONUtil.parse(tts));
+    }
+
+    @Test
+    void delAudio() {
+        List<FileItemItem> tts = service.searchAudio("tts", 0, 20);
+        String fileIds = tts.stream().map(FileItemItem::getVoiceEncodeFileid).collect(Collectors.joining(","));
+        service.delAudio(fileIds);
     }
 }
