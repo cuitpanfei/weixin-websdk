@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * created by cuitpanfei on 2022/07/28
@@ -115,8 +116,32 @@ public class WxMpWebMaterialServiceImpl implements WxMpWebMaterialService {
      * @param name 分组名称
      */
     @Override
-    public void addPicGroup(String name) {
+    public Integer addPicGroup(String name) {
+        String body = MpUrlBuilder.cgi("filepage").post()
+                .contentType(ContentType.FORM_URLENCODED.toString(StandardCharsets.UTF_8))
+                .form("action", "create_group")
+                .form("name", name)
+                .executeAsync().body();
+        return JSONUtil.parseObj(body).getByPath("group_id", Integer.class);
+    }
 
+    /**
+     * 根据组ID删除组信息
+     *
+     * @param groupIds 组ID，多个时由“,”分割
+     */
+    @Override
+    public void delPicGroup(String groupIds) {
+        String del_img = Arrays.stream(groupIds.split(","))
+                .map(s -> MpWebConst.DelPicGroupType.DEL_GROUP_WITHOUT_PICS.code)
+                .collect(Collectors.joining(","));
+        String body = MpUrlBuilder.cgi("filepage").post()
+                .contentType(ContentType.FORM_URLENCODED.toString(StandardCharsets.UTF_8))
+                .form("action", "batch_operate_group")
+                .form("delete_group_ids", groupIds)
+                .form("del_img", del_img)
+                .executeAsync().body();
+        System.out.println(body);
     }
 
     /**

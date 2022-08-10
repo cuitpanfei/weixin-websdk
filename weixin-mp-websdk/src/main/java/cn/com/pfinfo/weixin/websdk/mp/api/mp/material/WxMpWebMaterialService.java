@@ -113,8 +113,16 @@ public interface WxMpWebMaterialService {
      * 查询当前存在的分组请使用{@linkplain #loadPicGroups}
      *
      * @param name 分组名称
+     * @return 组ID
      */
-    void addPicGroup(String name);
+    Integer addPicGroup(String name);
+
+    /**
+     * 根据组ID删除组信息
+     *
+     * @param groupIds 组ID，多个时由“,”分割
+     */
+    void delPicGroup(String groupIds);
 
     /**
      * 获取图片所有分组信息，包含系统分组（最近使用、我的图片、未分组）以及所有自定义分组

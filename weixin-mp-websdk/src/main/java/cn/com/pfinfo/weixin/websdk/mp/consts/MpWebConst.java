@@ -31,4 +31,22 @@ public class MpWebConst {
             this.code = code;
         }
     }
+
+    public enum DelPicGroupType {
+        /**
+         * 仅删除分组信息，组内图片放到非分组
+         */
+        DEL_GROUP_WITHOUT_PICS("0", "仅删除分组信息，组内图片放到非分组"),
+        /**
+         * 连同组内图片一起删除
+         */
+        DEL_WITH_PICS("1", "连同组内图片一起删除");
+        public final String code;
+        public final String msg;
+
+        DelPicGroupType(String code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+    }
 }
