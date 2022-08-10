@@ -178,4 +178,6 @@ public interface WxMpWebMaterialService {
     }
 
     //================= 视频接口 ======================
+
+    String uploadVideo(File file);
 }

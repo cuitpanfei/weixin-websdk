@@ -1,5 +1,6 @@
 package cn.com.pfinfo.weixin.websdk.mp.api.mp.material;
 
+import cn.com.pfinfo.weixin.websdk.common.exception.RRException;
 import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpUtil;
 import cn.com.pfinfo.weixin.websdk.mp.consts.MpWebConst;
 import cn.com.pfinfo.weixin.websdk.mp.http.MpUrlBuilder;
@@ -168,38 +169,70 @@ public class WxMpWebMaterialServiceImpl implements WxMpWebMaterialService {
     @Override
     public String uploadAudio(File file) {
         int uploadFileBlockSize = 1048576;
-        MpUrlBuilder builder = MpUrlBuilder.cgi("audioupload");
-        HttpResponse response = builder.action("init_upload").post()
-                .contentType(ContentType.FORM_URLENCODED.toString(StandardCharsets.UTF_8))
-                .form("filename", file.getName())
-                .form("filesha", "undefined")
-                .form("filesize", file.length()).executeAsync();
-        String audioId = JSONUtil.parse(response.body()).getByPath("audio_id", String.class);
-        MpUrlBuilder uploadBlockBuilder = builder.action("upload_block").addQuery("part_sha", "dddd").addQuery("audio_id", audioId);
-        byte[] bytes = FileUtil.readBytes(file);
-        for (int partNum = 1, loopSize = (int) Math.ceil(file.length() * 1.0 / uploadFileBlockSize); partNum <= loopSize; partNum++) {
-            uploadBlockBuilder.addQuery("part_num", partNum)
-                    .post().contentType(ContentType.OCTET_STREAM.toString())
-                    .header(Header.CACHE_CONTROL, "no-cache")
-                    .body(Arrays.copyOfRange(bytes,
-                            Math.max(0, (partNum - 1) * uploadFileBlockSize),
-                            (int) Math.min(file.length(), partNum * uploadFileBlockSize)))
-                    .executeAsync();
-        }
-        uploadBlockBuilder.action("upload_finish")
-                .deleteQuery("part_sha")
-                .deleteQuery("part_num")
-                .addQuery("t", WxWebHttpUtil.random())
-                .post().executeAsync();
+        String audioId = uploadBlock(file, uploadFileBlockSize, MpWebConst.MaterialType.AUDIO, "audio_id");
         MpUrlBuilder operateVoice = MpUrlBuilder.cgi("operate_voice");
-
         String body = operateVoice.addQuery("oper", "create").post()
                 .form("audio_id", audioId)
                 .form("category", 17)
                 .form("title", file.getName())
                 .executeAsync()
                 .body();
-        String mediaid = JSONUtil.parseObj(body).getStr("encode_file_id");
-        return String.format("https://res.wx.qq.com/voice/getvoice?mediaid=%s", mediaid);
+        String mediaId = JSONUtil.parseObj(body).getStr("encode_file_id");
+        return String.format("https://res.wx.qq.com/voice/getvoice?mediaId=%s", mediaId);
+    }
+
+    @Override
+    public String uploadVideo(File file) {
+        int uploadFileBlockSize = 4194304;
+        String vid = uploadBlock(file, uploadFileBlockSize, MpWebConst.MaterialType.VIDEO, "vid");
+        MpUrlBuilder.parse(fileTransfer).action("upload_cdn")
+                .addQuery("ticket_id", MpApp.ticketId())
+                .addQuery("ticket", MpApp.ticket())
+                .addQuery("svr_time", DateUtil.currentSeconds())
+                .post().form("file", (File) null).executeAsync();
+        return null;
+    }
+
+    String uploadBlock(File file, int blockSize, MpWebConst.MaterialType type, String fileIdName) {
+        MpUrlBuilder urlBuilder;
+        boolean isAudio = MpWebConst.MaterialType.AUDIO.equals(type);
+        boolean isVideo = !isAudio && MpWebConst.MaterialType.VIDEO.equals(type);
+        if (isAudio) {
+            urlBuilder = MpUrlBuilder.cgi("audioupload");
+        } else if (isVideo) {
+            urlBuilder = MpUrlBuilder.cgi("videoupload");
+        } else {
+            throw new RRException(FileUtil.extName(file) + "是不支持上传的类型！");
+        }
+        HttpResponse response = urlBuilder.action("init_upload").post()
+                .contentType(ContentType.FORM_URLENCODED.toString(StandardCharsets.UTF_8))
+                .form("filename", file.getName())
+                .form("filesha", "undefined")
+                .form("filesize", file.length()).executeAsync();
+        String fileId = JSONUtil.parse(response.body()).getByPath(fileIdName, String.class);
+
+        urlBuilder.action("upload_block").addQuery("part_sha", "dddd").addQuery(fileIdName, fileId);
+        byte[] bytes = FileUtil.readBytes(file);
+        for (int partNum = 1, loopSize = (int) Math.ceil(file.length() * 1.0 / blockSize); partNum <= loopSize; partNum++) {
+            urlBuilder.addQuery("part_num", partNum)
+                    .addQuery("t", WxWebHttpUtil.random())
+                    .post().contentType(ContentType.OCTET_STREAM.toString())
+                    .header(Header.CACHE_CONTROL, "no-cache")
+                    .body(Arrays.copyOfRange(bytes,
+                            Math.max(0, (partNum - 1) * blockSize),
+                            (int) Math.min(file.length(), partNum * blockSize)))
+                    .executeAsync();
+        }
+
+        urlBuilder.action("upload_finish")
+                .deleteQuery("part_sha")
+                .deleteQuery("part_num")
+                .addQuery("t", WxWebHttpUtil.random());
+        if (isVideo) {
+            urlBuilder.addQuery("screen_shot_type", 1);
+        }
+        urlBuilder.post().executeAsync();
+
+        return fileId;
     }
 }
