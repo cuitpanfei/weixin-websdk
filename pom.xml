@@ -12,6 +12,7 @@
     <modules>
         <module>weixin-mp-websdk</module>
         <module>weixin-commom-websdk</module>
+        <module>weixin-mp-websdk-quick-start</module>
     </modules>
 
     <properties>

@@ -1,5 +1,6 @@
 package cn.com.pfinfo.weixin.websdk.mp.api;
 
+import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpUtil;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.WxMpWebService;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.WxMpWebServiceImpl;
 import cn.hutool.core.lang.Singleton;
@@ -38,6 +39,7 @@ public interface WxWebService {
         static final WxWebService INSTANCE;
 
         static {
+            WxWebHttpUtil.getNewWxUin();
             INSTANCE = Singleton.get(DefaultWxMpWebServiceImpl.class);
             Singleton.put(WxWebService.class.getName(), INSTANCE);
         }

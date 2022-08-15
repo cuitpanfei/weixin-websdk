@@ -76,8 +76,9 @@ public interface WxMpWebMaterialService {
      *
      * @param file    图片
      * @param groupId 分组id，默认为1
+     * @return pic id
      */
-    void uploadPic(File file, Integer groupId);
+    String uploadPic(File file, Integer groupId);
 
     default void uploadPic(File file) {
         uploadPic(file, null);
@@ -123,6 +124,14 @@ public interface WxMpWebMaterialService {
      * @param groupIds 组ID，多个时由“,”分割
      */
     void delPicGroup(String groupIds);
+
+    /**
+     * 根据组ID删除组信息，根据type判断是否需要删除组内文件
+     *
+     * @param groupIds 组信息
+     * @param type 删除的类型
+     */
+    void delPicGroup(String groupIds, MpWebConst.DelPicGroupType type);
 
     /**
      * 获取图片所有分组信息，包含系统分组（最近使用、我的图片、未分组）以及所有自定义分组

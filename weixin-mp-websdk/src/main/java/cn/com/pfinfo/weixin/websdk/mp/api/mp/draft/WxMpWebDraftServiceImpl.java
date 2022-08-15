@@ -19,6 +19,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,13 +38,11 @@ public class WxMpWebDraftServiceImpl implements WxMpWebDraftService {
 
 
     @Override
-    public void createDraft(DraftModel draft) {
-        MpUrlBuilder builder = MpUrlBuilder.parse(NEW_DRAFT_PAGE_URL)
-                .addQuery("type", "77")
-                .token();
+    public void createOrUpdateDraft(DraftModel draft) {
+        MpUrlBuilder builder = MpUrlBuilder.parse(NEW_DRAFT_PAGE_URL).token();
         String pageHtmlCode = builder.get().executeAsync().body();
-        HttpResponse response = MpUrlBuilder.cgi("/searchbiz").action("search_biz").addQuery("scene", 1).addQuery("begin",
-                0).addQuery("count", 10)
+        HttpResponse response = MpUrlBuilder.cgi("/searchbiz").action("search_biz").addQuery("scene", 1)
+                .addQuery("begin", 0).addQuery("count", 10)
                 .addQuery("query", "%E9%A3%9E%E7%BE%BD%E8%8B%B1%E5%8D%8E")
                 .get().executeAsync();
         JSONObject mpProfile = JSONUtil.parseObj(response.body());
@@ -55,8 +54,8 @@ public class WxMpWebDraftServiceImpl implements WxMpWebDraftService {
             }
         });
         Map<String, Object> body = createBody(draft, pageHtmlCode);
-        String result = MpUrlBuilder.cgi("/operate_appmsg").addQuery("t","ajax-response")
-                .addQuery("sub",draft.isUpdate() ? "update" : "create")
+        String result = MpUrlBuilder.cgi("/operate_appmsg").addQuery("t", "ajax-response")
+                .addQuery("sub", draft.isUpdate() ? "update" : "create")
                 .addQuery("type", "77")
                 .post()
                 .form(body)
@@ -154,19 +153,20 @@ public class WxMpWebDraftServiceImpl implements WxMpWebDraftService {
     }
 
 
-
     @Override
-    public void deleteDraft() {
-
+    public void deleteDraft(Long appMsgId) {
+        MpUrlBuilder.cgi("/operate_appmsg").addQuery("t", "ajax-response").addQuery("sub", "del")
+                .post()
+                .contentType(ContentType.FORM_URLENCODED.toString(StandardCharsets.UTF_8))
+                .form("AppMsgId", appMsgId)
+                .executeAsync();
     }
 
     @Override
-    public void modifyDraft() {
-
-    }
-
-    @Override
-    public void queryDrafts() {
-
+    public Optional<JSONObject> queryDrafts(Integer begin, Integer count) {
+        String body = MpUrlBuilder.parse(LIST_DRAFT).addQuery("begin", begin).addQuery("count", count).token()
+                .get()
+                .executeAsync().body();
+        return WxWebHttpUtil.getCgiFromPage(body);
     }
 }

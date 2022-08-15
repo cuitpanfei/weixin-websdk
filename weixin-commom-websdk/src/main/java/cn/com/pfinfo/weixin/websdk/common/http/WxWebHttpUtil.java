@@ -16,10 +16,14 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import cn.hutool.log.Log;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.lang.reflect.Type;
 import java.math.RoundingMode;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -34,6 +38,7 @@ import java.util.stream.Collectors;
  * @author cuitpanfei
  */
 public class WxWebHttpUtil extends HttpUtil {
+    private static final Log log = Log.get(WxWebHttpUtil.class);
     public static final Map<String, List<ErrCodeParser<?>>> ERR_CODE_PARSER;
 
     static {
@@ -83,36 +88,76 @@ public class WxWebHttpUtil extends HttpUtil {
         return RandomUtil.randomDouble(1, 16, RoundingMode.HALF_UP);
     }
 
-    public static Optional<JSONObject> getCgiFromPage(String html) {
+    public static Object loadWxDataByEvalSimpleJS(String html, String key) {
+        return loadWxDataByEvalSimpleJS(html, key, "");
+    }
+
+    public static Object loadWxDataByEvalSimpleJS(String html, String key, String preJs) {
         String[] lines = html.split("[\r]?\n");
-        JSONObject obj = new JSONObject();
-        Arrays.stream(lines).filter(line -> line.trim().startsWith("wx.cgiData"))
-                .forEach(line -> {
-                    if (line.trim().startsWith("wx.cgiData =") && line.trim().endsWith("};")) {
-                        String value = line.replaceAll("^[ ]+wx\\.cgiData =(.*?);", "$1");
-                        obj.putAll(JSONUtil.parseObj(value));
-                    } else {
-                        String key = line.replaceAll("^[ ]+wx\\.cgiData\\.(.*?) =(.*?);", "$1");
-                        String valueStr = line.replaceAll("^[ ]+wx\\.cgiData\\.(.*?) =(.*?);", "$2");
-                        Object value;
-                        if (valueStr.contains("||")) {
-                            valueStr = valueStr.split("\\|\\|")[0].trim();
-                        }
-                        if (valueStr.contains("*")) {
-                            String[] split = valueStr.replaceAll("\"|'", "").split("\\*");
-                            value = Arrays.stream(split).mapToInt(Integer::valueOf).reduce((l, r) -> l * r).getAsInt();
-                        } else {
-                            value = valueStr;
-                        }
-                        obj.append(key, value);
-                    }
-                });
-        return obj.isEmpty() ? Optional.empty() : Optional.ofNullable(obj);
+        String[] split = key.split("\\.");
+        StringBuilder sb = new StringBuilder(preJs);
+        sb.append("\nvar ");
+        List<String> initCode = new ArrayList<>(split.length);
+        List<String> initParam = new ArrayList<>(split.length);
+        for (int i = 0; i < split.length; i++) {
+            initCode.add(split[i] + "={}");
+            if (i > 0) {
+                initParam.add(split[i - 1] + "." + split[i] + "=" + split[i]);
+            }
+        }
+        sb.append(String.join(",", initCode)).append(";\n");
+        sb.append(String.join(",", initParam)).append(";\n");
+        boolean needAppend = false;
+        for (String line : lines) {
+            String trimLine = line.trim();
+            if (needAppend || trimLine.startsWith(key)) {
+                sb.append(line).append("\n");
+                needAppend = !trimLine.endsWith(";") && !trimLine.split("//")[0].trim().endsWith(";");
+            }
+        }
+        sb.append("\n").append(key).append(";");
+        ScriptEngine engine = new ScriptEngineManager().getEngineByName("javascript");
+        try {
+            return engine.eval(sb.toString());
+        } catch (ScriptException e) {
+            log.warn(e, "error eval for {}", key);
+            return null;
+        }
+    }
+
+    public static Optional<JSONObject> getCgiFromPage(String html) {
+        Object o = loadWxDataByEvalSimpleJS(html, "window.wx.cgiData");
+        o = o == null ? loadWxDataByEvalSimpleJS(html, "wx.cgiData") : o;
+        return o == null ? Optional.empty() : Optional.of(JSONUtil.parseObj(o));
     }
 
     public static Optional<JSONObject> getCommonData(String html) {
-        String[] lines = html.split("[\r]?\n");
-        JSONObject obj = new JSONObject();
-        return obj.isEmpty() ? Optional.empty() : Optional.ofNullable(obj);
+        String preJs = "function handlerNickname(str, escape) { // 临时对nickname decode\n" +
+                "  // var ar=['&','&amp;','<','&lt;','>','&gt;',' ','&nbsp;','\"','&quot;',\"'\",'&#39;','\\\\r','<br>','\\\\n','<br>'];\n" +
+                "  var ar = ['&', '&amp;', '<', '&lt;', '>', '&gt;', ' ', '&nbsp;', '\"', '&quot;', '\\'', '&#39;'];\n" +
+                "  /*\n" +
+                "  // 最新版的safari 12有一个BUG，如果使用字面量定义一个数组，var a = [1, 2, 3]\n" +
+                "  // 当调用了 a.reverse() 方法把变量 a 元素顺序反转成 3, 2, 1 后，\n" +
+                "  // 即使此页面刷新了， 或者此页面使用 A标签、 window.open 打开的页面，\n" +
+                "  // 只要调用到同一段代码， 变量 a 的元素顺序都会变成 3, 2, 1\n" +
+                "  // 所以这里不用 reverse 方法\n" +
+                "  if (escape === false) {\n" +
+                "    ar.reverse();\n" +
+                "  }*/\n" +
+                "  var arReverse = ['&#39;', '\\'', '&quot;', '\"', '&nbsp;', ' ', '&gt;', '>', '&lt;', '<', '&amp;', '&'];\n" +
+                "  var target;\n" +
+                "  if (escape === false) {\n" +
+                "    target = arReverse;\n" +
+                "  } else {\n" +
+                "    target = ar;\n" +
+                "  }\n" +
+                "  var r = str;\n" +
+                "  for (var i = 0; i < target.length; i += 2) {\n" +
+                "    r = r.replace(new RegExp(target[i], 'g'), target[1 + i]);\n" +
+                "  }\n" +
+                "  return r;\n" +
+                "};";
+        Object o = loadWxDataByEvalSimpleJS(html, "window.wx.commonData", preJs);
+        return o == null ? Optional.empty() : Optional.of(JSONUtil.parseObj(o));
     }
 }

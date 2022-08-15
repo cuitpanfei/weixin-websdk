@@ -8,6 +8,7 @@ import cn.com.pfinfo.weixin.websdk.mp.stage.MpApp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.script.ScriptException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,18 +82,17 @@ class WxMpWebDraftServiceTest {
 
     @Test
     void createDraft() {
-        draftService.createDraft(draft);
+        draftService.createOrUpdateDraft(draft);
     }
 
     @Test
-    void deleteDraft() {
+    void deleteDraft() throws ScriptException {
+        draftService.deleteDraft(100000353L);
     }
 
-    @Test
-    void modifyDraft() {
-    }
 
     @Test
     void queryDrafts() {
+        draftService.queryDrafts(0, 10);
     }
 }

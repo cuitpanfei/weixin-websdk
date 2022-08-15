@@ -47,10 +47,11 @@ public class WxMpWebMaterialServiceImpl implements WxMpWebMaterialService {
      * </pre>
      *
      * @param file 图片
+     * @return
      */
     @Override
-    public void uploadPic(File file, Integer groupId) {
-        MpUrlBuilder.parse(fileTransfer).action("upload_material")
+    public String uploadPic(File file, Integer groupId) {
+        String body = MpUrlBuilder.parse(fileTransfer).action("upload_material")
                 .addQuery("ticket_id", MpApp.ticketId())
                 .addQuery("ticket", MpApp.ticket())
                 .addQuery("svr_time", DateUtil.currentSeconds())
@@ -62,7 +63,8 @@ public class WxMpWebMaterialServiceImpl implements WxMpWebMaterialService {
                 .token()
                 .post()
                 .form("file", file)
-                .executeAsync();
+                .executeAsync().body();
+        return JSONUtil.parseObj(body).getStr("content");
     }
 
     /**
@@ -133,8 +135,19 @@ public class WxMpWebMaterialServiceImpl implements WxMpWebMaterialService {
      */
     @Override
     public void delPicGroup(String groupIds) {
+        delPicGroup(groupIds,MpWebConst.DelPicGroupType.DEL_GROUP_WITHOUT_PICS);
+    }
+
+    /**
+     * 根据组ID删除组信息，根据type判断是否需要删除组内文件
+     *
+     * @param groupIds 组信息
+     * @param type     删除的类型
+     */
+    @Override
+    public void delPicGroup(String groupIds, MpWebConst.DelPicGroupType type) {
         String del_img = Arrays.stream(groupIds.split(","))
-                .map(s -> MpWebConst.DelPicGroupType.DEL_GROUP_WITHOUT_PICS.code)
+                .map(s -> type.code)
                 .collect(Collectors.joining(","));
         String body = MpUrlBuilder.cgi("filepage").post()
                 .contentType(ContentType.FORM_URLENCODED.toString(StandardCharsets.UTF_8))
