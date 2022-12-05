@@ -1,10 +1,10 @@
 package cn.com.pfinfo.weixin.websdk.common.event;
 
 import cn.com.pfinfo.weixin.websdk.common.stage.App;
+import cn.hutool.core.lang.ClassScanner;
 import cn.hutool.core.lang.Singleton;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.ClassUtil;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +21,7 @@ public class EventManager extends ConcurrentHashMap<Class<?>, EventChain<?>> {
     private static final ExecutorService SERVICE = ThreadUtil.newFixedExecutor(5, "WxEventThreads", true);
 
     static {
-        Set<Class<?>> listeners = ClassUtil.scanPackageBySuper(CharSequenceUtil.EMPTY, WxSdkEventListener.class);
+        Set<Class<?>> listeners = ClassScanner.scanAllPackageBySuper(CharSequenceUtil.EMPTY, WxSdkEventListener.class);
         for (Class<?> clazz : listeners) {
             if (clazz.isInterface()) {
                 continue;

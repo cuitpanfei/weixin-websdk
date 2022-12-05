@@ -38,12 +38,12 @@ public class WxMpWebDraftServiceImpl implements WxMpWebDraftService {
 
 
     @Override
-    public void createOrUpdateDraft(DraftModel draft) {
+    public Long createOrUpdateDraft(DraftModel draft) {
         MpUrlBuilder builder = MpUrlBuilder.parse(NEW_DRAFT_PAGE_URL).token();
         String pageHtmlCode = builder.get().executeAsync().body();
         HttpResponse response = MpUrlBuilder.cgi("/searchbiz").action("search_biz").addQuery("scene", 1)
                 .addQuery("begin", 0).addQuery("count", 10)
-                .addQuery("query", "%E9%A3%9E%E7%BE%BD%E8%8B%B1%E5%8D%8E")
+                .addQuery("query", "飞羽英华")
                 .get().executeAsync();
         JSONObject mpProfile = JSONUtil.parseObj(response.body());
         JSONObject profileInfo = (JSONObject) mpProfile.getJSONArray("list").get(0);
@@ -62,6 +62,7 @@ public class WxMpWebDraftServiceImpl implements WxMpWebDraftService {
                 .contentType(ContentType.MULTIPART.getValue())
                 .executeAsync().body();
         System.out.println(result);
+        return JSONUtil.parseObj(result).getLong("appMsgId");
     }
 
     private MapBuilder<String, Object> initBuilder(DraftModel draft, String dataSeq) {
@@ -111,7 +112,7 @@ public class WxMpWebDraftServiceImpl implements WxMpWebDraftService {
         String author = draft.getAuthor();
         for (int i = 0; i < articlesSize; i++) {
             ArticleModel content = articles.get(i);
-            MultiItem item = Optional.ofNullable(items.get(i)).orElseGet(MultiItem::new);
+            MultiItem item = Optional.ofNullable(i < items.size() ? items.get(i) : null).orElseGet(MultiItem::new);
             String summary = Optional.ofNullable(item.getDigest()).orElseGet(() -> {
                 String digest = CharSequenceUtil.isNotEmpty(content.getSummary()) ? content.getSummary() : HtmlUtil.cleanHtmlTag(content.getArticle()).trim();
                 return digest.substring(0, Math.min(digest.length(), 100));
@@ -135,8 +136,11 @@ public class WxMpWebDraftServiceImpl implements WxMpWebDraftService {
                     .put("categories_list" + i, categoriesList).put("content" + i, content.getArticle())
                     .put("digest" + i, summary)
                     .put("sourceurl" + i, Optional.ofNullable(item.getSourceUrl()).orElse(content.getTargetLink()))
-                    .put("title" + i, Optional.ofNullable(item.getTitle()).orElse(content.getTitle()));
-            builder.putAll(ArticleMaterialKit.initAppreciationAccount(i, category, writerInfo));
+                    .put("title" + i, Optional.ofNullable(item.getTitle()).orElse(content.getTitle()))
+                    .put("copyright_type" + i, content.getCopyrightType());
+            if (content.isAppreciation()) {
+                builder.putAll(ArticleMaterialKit.initAppreciationAccount(i, category, writerInfo));
+            }
             if (CharSequenceUtil.isEmpty(item.getCdnUrlBack())) {
                 ArticleMaterialKit.cdnFromContentImg(content.getArticle(), i, "生活", builder);
             } else {

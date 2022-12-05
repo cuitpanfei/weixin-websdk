@@ -42,6 +42,10 @@ public class MpUrlBuilder implements Builder<String> {
         return new MpUrlBuilder(UrlPath.of("/cgi-bin", null).add(uri));
     }
 
+    public static MpUrlBuilder parse(String url) {
+        return new MpUrlBuilder(UrlBuilder.of(url));
+    }
+
     public MpUrlBuilder addQuery(String key, Object value) {
         if (builder.getQuery().getQueryMap().containsKey(key)) {
             deleteQuery(key);
@@ -57,6 +61,7 @@ public class MpUrlBuilder implements Builder<String> {
     public MpUrlBuilder action(String action) {
         return addQuery("action", action);
     }
+
     public MpUrlBuilder random() {
         return addQuery("random", WxWebHttpUtil.random());
     }
@@ -83,10 +88,6 @@ public class MpUrlBuilder implements Builder<String> {
 
     public MpUrlBuilder token() {
         return addQuery("token", MpApp.token());
-    }
-
-    public static MpUrlBuilder parse(String url) {
-        return new MpUrlBuilder(UrlBuilder.of(url));
     }
 
     public HttpRequest post() {

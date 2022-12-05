@@ -8,7 +8,6 @@ import cn.hutool.core.map.MapBuilder;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
@@ -180,7 +179,6 @@ public class ArticleMaterialKit {
                                                               JSONObject writerInfo) {
         return MapBuilder.create(new HashMap<String, Object>())
                 .put("can_reward" + index, writerInfo.getInt("can_reward"))
-                .put("copyright_type" + index, 1)
                 .put("reprint_permit_type" + index, 1)
                 .put("allow_reprint" + index, 0)
                 .put("allow_reprint_modify" + index, 0)

@@ -13,6 +13,10 @@ import cn.hutool.core.lang.Singleton;
 @FunctionalInterface
 public interface WxWebService {
 
+    static WxWebService me() {
+        return DefaultWxMpWebServiceImpl.INSTANCE;
+    }
+
     /**
      * 服务功能的描述
      *
@@ -27,12 +31,6 @@ public interface WxWebService {
      */
     default WxMpWebService mpWebService() {
         return Singleton.get(WxMpWebServiceImpl.class);
-    }
-
-
-
-    static WxWebService me() {
-        return DefaultWxMpWebServiceImpl.INSTANCE;
     }
 
     class DefaultWxMpWebServiceImpl implements WxWebService {

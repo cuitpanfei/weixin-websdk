@@ -1,0 +1,65 @@
+# httpclient的UserAgent
+wechat4j.userAgent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36
+# QRCode图片临时文件前缀
+wechat4j.qrcode.tmpfile.prefix=wechat4j_tmp_
+# 全局重试次数
+wechat4j.retry.time=3
+# 同步监听请求重试次数
+wechat4j.syncCheck.retry.time=5
+
+# 0、全局
+## 0.1、Web微信host
+webwx-url.webwxhost_url=https://wx<urlVersion>.qq.com
+[storage]
+#context =BaZzMLn1G1CLDf6SDKcpZ71ZzSscMbFWQ2VobhoebE86jE4stzKjEKe4Ch451Z7s44EDKbcSLEP8NNQ9bVaAYZEULjjUYp2KN1zHdKKJFYQC9Ruzkz6Qk8hwJKQnzLijtMzwNLCfQ65L9ZMQP2CCiajHSfHHHJ6DiWewQwDst5XmPpFpKGrTYttpmgz6e7m2m3JcxPJPxkcL7mBroogx5CdH2bB9e6Qk29JVfV6igzRqBt4EP8jFWzDmWzcakMzq5VCUkAe4p3E79VL2cGdEYiJSHWv46oiDAURhE8dab11rmczo5CZhiBidUZ5dGZztRR9nQfeWWUYa8CXUxcQkHo6X3JUcn6koth7L2xBabTfrAPGxM2LKLmtn7sTAFzyfLqTH4upxCpp3UyU1TYqHXFkQFdB7vBEcXKePTGUMfdDtzaNgkhZUvNMzRyPfJacrJ5CXBq92kfLLCHB7HKsFsuduhxMBRwXC3eBnDVgUWJ2bWskBpdtiVtC8bLSpSDbdFFe32A4hr5ERubHz5NWpVHdVSt4SCCVvAjSHzb5k6zAJVGe2yUaAeWAeF1s7roWqZqW8YFAKvchmawbPh2D721Hfq3Jdh5E8TZve4sZtou55h6mT8xGTf9STNkyFYdsFML8vCZwyaVReA2mGStkCpxJRmSaPhgDwj4sdsc7B5kXKrV7Kn9XTv5qqn1jBoYR9WJ4MBPrgJtsHfnxeuyEQeVJG1dVPD1owxr71HTKqAHgtnWtTjpLA8y1Db4msYhjEhw4wfg7Q9QAPUQ6o539ykDesZtdx2Kj5M1UuDqasd636Htku26WFq3qSEy6PG4eMXHBD67v1SroSeujcP7Cxn5rmA28f6471ig4GfiPe1vPGuFdkEygz5ZgPDbAcC2BijcxgJZkT1DRsjPzifXGc2MjK6FHmMtc6E7xGC1GqSb8jb9m1aik7fCabgJZJGGqaFYeq2nzry6fo5Rk27LUjt8tjiisQEBtpS5ApXPf5iv7bLSRAPUi3K62oBZ1gpHYPcoTQRV3UCkaaaUA7Bo8ifSmxuQrEdh86rvmaG5eCNdbLXdKbqdKWihVBUemDrjxjMC5PLZRgUhir6tYW34Z6vszGfpKPfDoYFUo8CwxRQLFwpGYGGPF6R7P4FZZSrzybCHszZXZncqKD7XyHp8giaT1is3VS52BVXeefjzbCRasDKpn2ZYf9o2cKKjbphrCjpE7amX3ruLWqr5pHrenpMj4g4N2sURSCpHsbQdA1F2fNmch81M9qWunKWruhELZmFNmGAHvEWYX1M9iyeZwoUwcdyq3oZN5rmnLANpQjKvx1Wy5gT2gmWPwTY1NtcKHWYRsWRE7xtvAY7tcmE8mhhHMF9vrAV15exW5G9Kug46iFugxUqaJAgN92uzm23Ur8Ac1suvtHfqncxeMBwiXLYDdkc263qzsG9Dz14kyxAaky64YsoqfNgGohJMN8rqTBSJd7sHcS1Xr3Ex6YHuDs2165tGMUgjvvU62k3PqQwcUEbNSmXxydFP7DcPQS7uFq3AR6ib1E5crPqAbG42r3J3up2pg6SaqqziSBq6i4RC2nd2VJHBaoDFgPwSgDd3YhNCxUsi9iKRiedxdsfPqiGPqnW5QnbgWG2tHmf7u8Tkav44k4hP1A4tXBrzyRqa2qVZU5i
+
+[webwx]
+# web微信对应的appid
+appid=wx782c26e4c19acffb
+
+
+[login]
+# 1、登录
+## 1.1、获取微信uuid
+uuid_url=https://login.wx.qq.com/jslogin?appid=<appid>&fun=new&lang=zh_CN&_=<_>
+## 1.2、获取二维码
+qrcode_url=https://login.weixin.qq.com/qrcode/<uuid>
+## 1.3、等待扫码登录并获取跳转url
+redirect_uri=https://login.wx.qq.com/cgi-bin/mmwebwx-bin/login?loginicon=true&uuid=<uuid>&tip=<tip>&r=<r>&_=<_>
+## 1.4、获取登录认证码
+newlogin_url=<redirectUri>&fun=new&version=v2
+## 1.5、退出登录
+logout_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxlogout?redirect=1&type=<type>&skey=<skey>
+## 1.6、push登录
+pushlogin_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxpushloginurl?uin=<uin>
+
+[sync_data]
+# 2、数据同步
+## 2.1、页面初始化
+webwxinit_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxinit?r=<r>&lang=zh_CN&pass_ticket=<pass_ticket>
+## 2.2、开启消息状态通知
+statusnotify_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxstatusnotify?lang=zh_CN&pass_ticket=<pass_ticket>
+## 2.3、服务端状态同步
+synccheck_url=https://webpush.wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/synccheck?r=<r>&skey=<skey>&sid=<sid>&uin=<uin>&deviceid=<deviceid>&synckey=<synckey>&_=<_>
+
+[contact_user]
+# 3、联系人管理
+## 3.1、获取全部联系人列表
+getcontact_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxgetcontact?lang=zh_CN&pass_ticket=<pass_ticket>&r=<r>&seq=0&skey=<skey>
+## 3.2、批量获取指定联系人列表
+batchgetcontact_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxbatchgetcontact?type=ex&r=<r>&lang=zh_CN&pass_ticket=<pass_ticket>
+## 3.3、获取联系人头像
+webwxgetheadimg_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxgetheadimg?seq=<seq>&username=<username>
+
+[send_received_msg]
+# 4、收发消息
+## 4.1、从服务端拉取新消息
+webwxsync_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxsync?sid=<sid>&skey=<skey>&pass_ticket=<pass_ticket>
+## 4.2、发送消息
+webwxsendmsg_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg?pass_ticket=<pass_ticket>
+## 4.3、上传媒体文件
+uploadmedia_url=https://file.wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxuploadmedia?f=json
+## 4.4、发送图片消息
+webwxsendmsgimg_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsgimg?fun=async&f=json&lang=zh_CN&pass_ticket=<pass_ticket>
+## 4.5、发送视频消息
+webwxsendvideomsg_url=https://wx<urlVersion>.qq.com/cgi-bin/mmwebwx-bin/webwxsendvideomsg?fun=async&f=json

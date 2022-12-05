@@ -33,16 +33,14 @@ import static cn.com.pfinfo.weixin.websdk.mp.api.mp.WxMpWebService.BASE_URL;
  * @author cuitpanfei
  */
 public class WxMpWebLoginServiceImpl implements WxMpWebLoginService {
+    public static final String SCAN_LOGIN_QRCODE_BASE_URL = BASE_URL + "/scanloginqrcode";
+    public static final String BIZ_LOGIN_BASE_URL = BASE_URL + "/bizlogin";
+    public static final String APPLICATION_FORM_URLENCODED_VALUE = ContentType.FORM_URLENCODED.toString(StandardCharsets.UTF_8);
     private static final Log log = LogFactory.get(WxMpWebLoginServiceImpl.class);
 
     static {
         Singleton.put(WxMpWebLoginService.class.getName(), Singleton.get(WxMpWebLoginServiceImpl.class));
     }
-
-    public static final String SCAN_LOGIN_QRCODE_BASE_URL = BASE_URL + "/scanloginqrcode";
-    public static final String BIZ_LOGIN_BASE_URL = BASE_URL + "/bizlogin";
-
-    public static final String APPLICATION_FORM_URLENCODED_VALUE = ContentType.FORM_URLENCODED.toString(StandardCharsets.UTF_8);
 
     private void prelogin() {
         WxWebHttpUtil.get(WxMpWebService.MP_WEIXIN_QQ_COM);
@@ -127,7 +125,6 @@ public class WxMpWebLoginServiceImpl implements WxMpWebLoginService {
             String jsonResult = response.body();
             String redirectUrl = JSONUtil.parseObj(jsonResult).getStr("redirect_url");
             if (redirectUrl != null) {
-                //TODO save mp token.
                 String token = redirectUrl.replaceAll("\\D+(\\d+)\\D*", "$1");
                 MpApp.setToken(token);
             }

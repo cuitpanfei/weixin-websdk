@@ -135,7 +135,7 @@ public class WxMpWebMaterialServiceImpl implements WxMpWebMaterialService {
      */
     @Override
     public void delPicGroup(String groupIds) {
-        delPicGroup(groupIds,MpWebConst.DelPicGroupType.DEL_GROUP_WITHOUT_PICS);
+        delPicGroup(groupIds, MpWebConst.DelPicGroupType.DEL_GROUP_WITHOUT_PICS);
     }
 
     /**

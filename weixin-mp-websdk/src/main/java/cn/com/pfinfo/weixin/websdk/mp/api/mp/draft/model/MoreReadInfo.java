@@ -1,4 +1,3 @@
-
 package cn.com.pfinfo.weixin.websdk.mp.api.mp.draft.model;
 
 import com.google.gson.annotations.SerializedName;

@@ -129,7 +129,7 @@ public interface WxMpWebMaterialService {
      * 根据组ID删除组信息，根据type判断是否需要删除组内文件
      *
      * @param groupIds 组信息
-     * @param type 删除的类型
+     * @param type     删除的类型
      */
     void delPicGroup(String groupIds, MpWebConst.DelPicGroupType type);
 

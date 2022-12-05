@@ -55,12 +55,8 @@ public class WxWebReqHttpInterceptor implements WxWebHttpInterceptor<HttpRequest
                 req.form(TOKEN, token).form("f", JSON)
                         .form(AJAX, 1).form(LANG, LANG_ZH_CN);
             }
-            req.setUrl(builder).setFollowRedirects(true).cookie(model.cookie());
+            req.setUrl(builder).setFollowRedirects(true);
+            model.cookie().ifPresent(req::cookie);
         });
-        StringBuilder sb = new StringBuilder();
-        Optional.ofNullable(req.form())
-                .ifPresent(map -> map.forEach((k, v) -> sb.append(k).append(": ").append(v).append("\n")));
-        log.debug("url:[{}], method:[{}]", req.getUrl(), req.getMethod());
-        WxWebRspHttpInterceptor.REQ_INFO.set(String.format("request: %s,%n form:%n%s", req, sb));
     }
 }

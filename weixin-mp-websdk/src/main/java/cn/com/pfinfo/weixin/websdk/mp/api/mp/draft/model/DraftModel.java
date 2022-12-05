@@ -17,9 +17,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DraftModel {
+    List<ArticleModel> articles;
     private Long appMsgId;
     private String author;
-    List<ArticleModel> articles;
 
     public final boolean isUpdate() {
         return appMsgId != null;

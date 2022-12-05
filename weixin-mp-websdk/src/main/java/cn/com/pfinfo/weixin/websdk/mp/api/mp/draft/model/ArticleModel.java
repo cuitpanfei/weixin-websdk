@@ -33,7 +33,11 @@ public class ArticleModel {
     private String summary;
 
     /**
-     * 开启赞赏（声明原创）
+     * 声明原创，0：非原创；1：原创
+     */
+    private int copyrightType = 0;
+    /**
+     * 开启赞赏（声明原创才有效）
      */
     private boolean appreciation;
     /**
@@ -48,4 +52,13 @@ public class ArticleModel {
      * 原文链接
      */
     private String targetLink;
+
+    public boolean isAppreciation() {
+        return copyrightType == 1 && appreciation;
+    }
+
+    public void setAppreciation(boolean appreciation) {
+        setCopyrightType(1);
+        this.appreciation = appreciation;
+    }
 }

@@ -1,12 +1,10 @@
-package cn.com.pfinfo.weixin.websdk.mp.http.interceptor;
+package cn.com.pfinfo.weixin.websdk.common.http;
 
 import cn.com.pfinfo.weixin.websdk.common.consts.WxConsts;
 import cn.com.pfinfo.weixin.websdk.common.exception.RRException;
-import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpInterceptor;
-import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpUtil;
 import cn.com.pfinfo.weixin.websdk.common.http.errcode.ErrCodeParser;
 import cn.com.pfinfo.weixin.websdk.common.model.CookieModel;
-import cn.com.pfinfo.weixin.websdk.mp.stage.MpApp;
+import cn.com.pfinfo.weixin.websdk.common.stage.App;
 import cn.hutool.core.util.TypeUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.Header;
@@ -33,39 +31,16 @@ import static java.lang.String.join;
  *
  * @author cuitpanfei
  */
-public class WxWebRspHttpInterceptor implements WxWebHttpInterceptor<HttpResponse> {
-
-    private static final Log log = Log.get(WxWebReqHttpInterceptor.class);
+public class DefaultWxWebRspHttpInterceptor implements WxWebHttpInterceptor<HttpResponse> {
 
     public static final ThreadLocal<String> REQ_INFO = new ThreadLocal<>();
+    private static final Log log = Log.get(DefaultWxWebRspHttpInterceptor.class);
 
-    /**
-     * 处理请求
-     *
-     * @param response 响应对象
-     */
-    @Override
-    public void process(HttpResponse response, Optional<CookieModel> modelOptional) {
-        String body = response.body();
-        if (!response.isOk()) {
-            log.error("请求的状态不正确，status=[{}], body: {}", response.getStatus(), body);
-        }
-        Optional.ofNullable(response.header(Header.CONTENT_TYPE))
-                .ifPresent(contentType -> {
-                    // result is json
-                    if (contentType.contains(ContentType.JSON.getValue())) {
-                        checkRet(body);
-                    }
-                });
-        modelOptional.ifPresent(model -> model.updateCookie(getCookie(response, model.cookie())));
-        REQ_INFO.remove();
-    }
-
-    public static String getCookie(HttpResponse response, String oldCookies) {
-        Set<String> cookieSet = oldCookies == null ? new HashSet<>() : Arrays.stream(oldCookies.split(";"))
+    static String getCookie(HttpResponse response, Optional<String> oldCookies) {
+        Set<String> cookieSet = oldCookies.map(value -> Arrays.stream(value.split(";"))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet())).orElseGet(HashSet::new);
 
         Optional.ofNullable(response.headerList(SET_COOKIE.getValue()))
                 .orElse(Collections.emptyList())
@@ -76,13 +51,41 @@ public class WxWebRspHttpInterceptor implements WxWebHttpInterceptor<HttpRespons
         return join("; ", cookieSet);
     }
 
+    /**
+     * 处理请求
+     *
+     * @param response 响应对象
+     */
+    @Override
+    public void process(HttpResponse response, Optional<CookieModel> modelOptional) {
+        String body = response.body();
+        if (response.isOk()) {
+            Optional.ofNullable(response.header(Header.CONTENT_TYPE))
+                    .ifPresent(contentType -> {
+                        // result is json
+                        if (contentType.contains(ContentType.JSON.getValue())||JSONUtil.isTypeJSONObject(body)) {
+                            checkRet(body);
+                        }
+                    });
+            modelOptional.map(CookieModel::cookie).ifPresent(cookie -> App.updateCookie(getCookie(response, cookie)));
+        }
+        REQ_INFO.remove();
+        if (!response.isOk()) {
+            log.error("请求的状态不正确，status=[{}], body: {}", response.getStatus(), body);
+            throw new RRException("请求的状态不正确：" + body, response.getStatus());
+        }
+    }
+
     void checkRet(String body) {
         JSONObject object = JSONUtil.parseObj(body);
+        object.getConfig().setIgnoreCase(true);
         Integer ret = null;
         if (object.containsKey(WxConsts.RespFiled.RET)) {
             ret = object.getInt(WxConsts.RespFiled.RET);
         } else if (object.containsKey(WxConsts.RespFiled.BASE_RESP)) {
             ret = object.getByPath(WxConsts.RespFiled.BASE_RESP_DOT_RET, Integer.class);
+        } else if (object.containsKey(WxConsts.RespFiled.BASE_RESP_UP)) {
+            ret = object.getByPath(WxConsts.RespFiled.BASE_RESP_DOT_RET_UP, Integer.class);
         }
         if (ret != null && ret != 0) {
             if (ret == -101) {
@@ -95,7 +98,7 @@ public class WxWebRspHttpInterceptor implements WxWebHttpInterceptor<HttpRespons
     }
 
     String handlerRet(int ret) {
-        List<ErrCodeParser<?>> parsers = WxWebHttpUtil.ERR_CODE_PARSER.getOrDefault(MpApp.type(),
+        List<ErrCodeParser<?>> parsers = WxWebHttpUtil.ERR_CODE_PARSER.getOrDefault(App.type(),
                 Collections.emptyList());
         for (ErrCodeParser parser : parsers) {
             if (TypeUtil.getTypeArgument(parser.getClass()) == Integer.TYPE) {

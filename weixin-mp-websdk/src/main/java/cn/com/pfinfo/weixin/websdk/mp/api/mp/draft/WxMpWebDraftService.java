@@ -18,7 +18,7 @@ public interface WxMpWebDraftService {
     String LIST_DRAFT = MpUrlBuilder.cgi("/appmsg").action("list").addQuery("type", "77").addQuery("begin", 0).build();
 
 
-    void createOrUpdateDraft(DraftModel draft);
+    Long createOrUpdateDraft(DraftModel draft);
 
     void deleteDraft(Long appMsgId);
 

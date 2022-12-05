@@ -1,9 +1,9 @@
 package cn.com.pfinfo.weixin.websdk.common.http;
 
 import cn.com.pfinfo.weixin.websdk.common.http.errcode.ErrCodeParser;
+import cn.hutool.core.lang.ClassScanner;
 import cn.hutool.core.lang.Singleton;
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.TypeUtil;
 import cn.hutool.http.GlobalHeaders;
@@ -38,8 +38,8 @@ import java.util.stream.Collectors;
  * @author cuitpanfei
  */
 public class WxWebHttpUtil extends HttpUtil {
-    private static final Log log = Log.get(WxWebHttpUtil.class);
     public static final Map<String, List<ErrCodeParser<?>>> ERR_CODE_PARSER;
+    private static final Log log = Log.get(WxWebHttpUtil.class);
 
     static {
         GlobalHeaders.INSTANCE.header(Header.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Safari/537.36 Edg/104.0.1293.47", true);
@@ -51,7 +51,7 @@ public class WxWebHttpUtil extends HttpUtil {
     }
 
     static void addHttpInterceptor() {
-        Set<Class<?>> classes = ClassUtil.scanPackageBySuper(CharSequenceUtil.EMPTY, WxWebHttpInterceptor.class);
+        Set<Class<?>> classes = ClassScanner.scanAllPackageBySuper(CharSequenceUtil.EMPTY, WxWebHttpInterceptor.class);
         for (Class<?> clazz : classes) {
             if (clazz.isInterface()) {
                 continue;
@@ -68,7 +68,7 @@ public class WxWebHttpUtil extends HttpUtil {
     }
 
     static Map<String, List<ErrCodeParser<?>>> loadAllErrCodeParser() {
-        Set<Class<?>> classes = ClassUtil.scanPackageBySuper(CharSequenceUtil.EMPTY, ErrCodeParser.class);
+        Set<Class<?>> classes = ClassScanner.scanAllPackageBySuper(CharSequenceUtil.EMPTY, ErrCodeParser.class);
         return classes.stream().filter(clazz -> !clazz.isInterface())
                 .map(clazz -> (ErrCodeParser<?>) Singleton.get(clazz))
                 .collect(Collectors.groupingBy(ErrCodeParser::appType));
@@ -159,5 +159,9 @@ public class WxWebHttpUtil extends HttpUtil {
                 "};";
         Object o = loadWxDataByEvalSimpleJS(html, "window.wx.commonData", preJs);
         return o == null ? Optional.empty() : Optional.of(JSONUtil.parseObj(o));
+    }
+
+    public static void init() {
+
     }
 }

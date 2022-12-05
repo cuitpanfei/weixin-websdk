@@ -1,8 +1,12 @@
 package cn.com.pfinfo.weixin.websdk.common.model;
 
+import cn.com.pfinfo.weixin.websdk.common.event.CookieChangeEvent;
+import cn.com.pfinfo.weixin.websdk.common.event.EventManager;
+import cn.com.pfinfo.weixin.websdk.common.stage.App;
 import lombok.Builder;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * created by cuitpanfei on 2022/07/25
@@ -49,13 +53,15 @@ public class AuthModel implements Serializable, AppModel, CookieModel {
      * @return 当前应用cookie。
      */
     @Override
-    public String cookie() {
-        return getCookie();
+    public Optional<String> cookie() {
+        return Optional.ofNullable(getCookie());
     }
 
     @Override
     public void updateCookie(String cookie) {
+        String oldCookie = getCookie();
         setCookie(cookie);
+        EventManager.publish(CookieChangeEvent.of(App.appId(), oldCookie, cookie));
     }
 
     public String getOpenId() {

@@ -36,11 +36,11 @@ public class App {
     }
 
     public static boolean hasCookie() {
-        return cookie() != null;
+        return cookie().isPresent();
     }
 
-    public static String cookie() {
-        return loadCookie().map(CookieModel::cookie).orElse(null);
+    public static Optional<String> cookie() {
+        return loadCookie().flatMap(CookieModel::cookie);
     }
 
 

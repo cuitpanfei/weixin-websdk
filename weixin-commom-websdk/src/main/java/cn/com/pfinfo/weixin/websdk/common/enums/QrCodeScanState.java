@@ -32,9 +32,8 @@ public enum QrCodeScanState {
      */
     DONE(1);
 
-    int status;
-
     static Map<String, String> QRCODE_INFO = new ConcurrentHashMap<>();
+    int status;
 
     QrCodeScanState(int status) {
         this.status = status;

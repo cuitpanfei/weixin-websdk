@@ -1,4 +1,3 @@
-
 package cn.com.pfinfo.weixin.websdk.mp.api.mp.draft.model;
 
 import com.google.gson.annotations.Expose;
@@ -27,6 +26,10 @@ public class DraftInfos {
     private Long searchCnt;
     @SerializedName("search_id")
     private String searchId;
+
+    public static DraftInfos from(String infos) {
+        return GSON_INSTANCE.fromJson(infos, DraftInfos.class);
+    }
 
     public FileCnt getFileCnt() {
         return fileCnt;
@@ -74,10 +77,6 @@ public class DraftInfos {
 
     public void setSearchId(String searchId) {
         this.searchId = searchId;
-    }
-
-    public static DraftInfos from(String infos) {
-        return GSON_INSTANCE.fromJson(infos, DraftInfos.class);
     }
 
     @Override

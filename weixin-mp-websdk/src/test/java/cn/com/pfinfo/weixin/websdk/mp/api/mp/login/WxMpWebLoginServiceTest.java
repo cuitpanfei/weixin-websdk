@@ -3,15 +3,19 @@ package cn.com.pfinfo.weixin.websdk.mp.api.mp.login;
 import cn.com.pfinfo.weixin.websdk.common.enums.QrCodeScanState;
 import cn.com.pfinfo.weixin.websdk.common.event.EventManager;
 import cn.com.pfinfo.weixin.websdk.common.http.WxWebHttpUtil;
-import cn.com.pfinfo.weixin.websdk.common.stage.App;
 import cn.com.pfinfo.weixin.websdk.mp.api.mp.login.event.QrCodeScanEventDetail;
 import cn.com.pfinfo.weixin.websdk.mp.stage.MpApp;
 import cn.hutool.core.lang.Singleton;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.extra.qrcode.QrCodeUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +46,22 @@ class WxMpWebLoginServiceTest {
     void getLoginQRCodeDecodeLink() {
         String loginQRCodeDecodeLink = service.getLoginQRCodeDecodeLink();
         System.out.printf("appId=[%s] \t qrTicketUrl=[%s]\n", MpApp.appId(), loginQRCodeDecodeLink);
+        FileOutputStream fos = null;
+        try {
+            File tmp = File.createTempFile("qrTicketUrl", ".jpg");
+            QrCodeUtil.generate(loginQRCodeDecodeLink,300,300,tmp);
+            Runtime.getRuntime().exec("cmd /c start " + tmp.getPath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         Assertions.assertNotNull(loginQRCodeDecodeLink);
     }
 
