@@ -4,7 +4,6 @@ import cn.com.pfinfo.weixin.websdk.common.event.CookieChangeEvent;
 import cn.com.pfinfo.weixin.websdk.common.event.WxSdkEvent;
 import cn.com.pfinfo.weixin.websdk.common.event.WxSdkEventListener;
 import cn.com.pfinfo.weixin.websdk.wechat4j.stage.WechatApp;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,7 +16,6 @@ import java.util.stream.Collectors;
  *
  * @author cuitpanfei
  */
-@Slf4j
 public class CookieChangeEventDetail implements WxSdkEventListener<CookieChangeEvent> {
     @Override
     public void onEvent(WxSdkEvent<CookieChangeEvent> eventSource) {

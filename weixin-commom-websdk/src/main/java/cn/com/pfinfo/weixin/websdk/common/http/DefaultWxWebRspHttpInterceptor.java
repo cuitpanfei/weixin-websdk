@@ -15,10 +15,10 @@ import cn.hutool.log.Log;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static cn.hutool.http.Header.SET_COOKIE;
@@ -37,18 +37,20 @@ public class DefaultWxWebRspHttpInterceptor implements WxWebHttpInterceptor<Http
     private static final Log log = Log.get(DefaultWxWebRspHttpInterceptor.class);
 
     static String getCookie(HttpResponse response, Optional<String> oldCookies) {
-        Set<String> cookieSet = oldCookies.map(value -> Arrays.stream(value.split(";"))
+        Map<String, String> cookieSet = oldCookies.map(value -> Arrays.stream(value.split(";"))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .collect(Collectors.toSet())).orElseGet(HashSet::new);
+                .filter(s -> s.contains("="))
+                .collect(Collectors.toMap(s -> s.split("=")[0], s -> s))).orElseGet(HashMap::new);
 
         Optional.ofNullable(response.headerList(SET_COOKIE.getValue()))
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(s -> !s.contains("EXPIRED"))
                 .map(s -> s.contains(";") ? s.split(";")[0].trim() : s.trim())
-                .forEach(cookieSet::add);
-        return join("; ", cookieSet);
+                .map(s -> s.split("="))
+                .forEach(arr -> cookieSet.put(arr[0], String.join("=", arr)));
+        return join("; ", cookieSet.values());
     }
 
     /**
@@ -63,7 +65,7 @@ public class DefaultWxWebRspHttpInterceptor implements WxWebHttpInterceptor<Http
             Optional.ofNullable(response.header(Header.CONTENT_TYPE))
                     .ifPresent(contentType -> {
                         // result is json
-                        if (contentType.contains(ContentType.JSON.getValue())||JSONUtil.isTypeJSONObject(body)) {
+                        if (contentType.contains(ContentType.JSON.getValue()) || JSONUtil.isTypeJSONObject(body)) {
                             checkRet(body);
                         }
                     });

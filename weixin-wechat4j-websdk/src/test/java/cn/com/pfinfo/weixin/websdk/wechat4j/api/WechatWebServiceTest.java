@@ -26,13 +26,11 @@ class WechatWebServiceTest {
     static void setUp() {
         System.out.println("before");
         wechat = WechatWebService.me().wechat();
-        WechatApp.getContext().wxuin="815143066";
         wechat.autoLogin(true);
     }
     @AfterAll
     static void after() {
         System.out.println("after");
-        WechatApp.storage();
         wechat.finish();
     }
 
